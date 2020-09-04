@@ -1,11 +1,15 @@
 import React from 'react';
+import Home from './components/Home';
 import World from './components/World';
+import { BrowserRouter, Route } from 'react-router-dom';
 
 function App() {
+	
 	return (
-		<div className="App">
-			<World />
-		</div>
+		<BrowserRouter>
+			<Route path="/" exact component={Home} />
+			<Route path="/world" component={World} />
+		</BrowserRouter>
 	);
 }
 
