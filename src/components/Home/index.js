@@ -7,6 +7,9 @@ function Home() {
 			<Link to="/world">
 				Transform World
 			</Link>
+			<Link to="/bbc-covid19">
+				BBCCovid19
+			</Link>
 		</div>
 	)
 }
