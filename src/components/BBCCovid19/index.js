@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import introImage from '../../images/intro.png';
 import coffeeImage from '../../images/coffee.png';
 import runningImage from '../../images/running.png';
@@ -11,7 +11,87 @@ import sleepingImage from '../../images/sleeping.png';
 import birdImage from '../../images/bird.gif';
 import './BBCCovid19.css';
 
+
+// 1. CSS position: sticky로 배경 이미지를 고정
+// 2. intersectionObserver.observe로 step elements를 관찰하다가
+// 	스크롤 이벤트마다 관찰대상 step의 index에 해당하는 graphic의 visible 상태를 갱신
+// 3. active function 안에 action이 있으면, translate를 바꿔주는 등의 action을 실행한다.
+
+
 function BBCCovid19() {
+	useEffect( () => {
+		const stepElements =  document.querySelectorAll( '.step' );
+		const graphicElements =  document.querySelectorAll( '.graphic-item' );
+		let visibleItem = graphicElements[0];
+
+		const actions = {
+			birdFlies(key) {
+				if ( key ) {
+					document.querySelector( '[data-index="2"] .bird' ).style.transform = `
+					translateX(${window.innerWidth}px)`;
+				} else {
+					document.querySelector( '[data-index="2"] .bird' ).style.transform = `
+					translateX(-100%)`;
+				}
+			},
+			birdFlies2(key) {
+				if ( key ) {
+					document.querySelector( '[data-index="5"] .bird' ).style.transform = `
+					translate(${window.innerWidth}px, -${window.innerHeight}px)`;
+				} else {
+					document.querySelector( '[data-index="5"] .bird' ).style.transform = `
+					translate(0)`;
+				}
+			},
+		}
+		let ioIndex;
+
+		const io = new IntersectionObserver(( entries, observer ) => {
+			ioIndex = entries[0].target.dataset.index;
+
+		});
+
+		function activate(action) {
+			visibleItem.classList.add( 'visible' );
+			if ( action ) {
+				actions[action](true);
+			}
+		}
+		
+		function inactivate(action) {
+			visibleItem.classList.remove( 'visible' );
+			if ( action ) {
+				actions[action](false);
+			}
+		}
+
+		for ( let index = 0; index < stepElements.length; index++ ) {
+			io.observe(stepElements[index]);
+			stepElements[index].dataset.index = index;
+			graphicElements[index].dataset.index = index;
+		}
+
+		window.addEventListener('scroll', () => {
+			let step;
+			let boundingRect;
+
+			for ( let index = ioIndex - 1; index < ioIndex + 2; index++ ) {
+				step = stepElements[index];
+				if ( !step ) {
+					continue;
+				}
+				boundingRect = step.getBoundingClientRect();
+				
+				if ( boundingRect.top > window.innerHeight * 0.1 && boundingRect.top < window.innerHeight * 0.8 ) {
+					inactivate(visibleItem.dataset.action);
+					visibleItem = graphicElements[step.dataset.index];
+					activate(visibleItem.dataset.action);
+				}
+			}
+		});
+		activate();
+	}, []);
+
 	return (
 		<div className="BBCCovid19">
 			<header className="header">
